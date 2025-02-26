@@ -25,5 +25,8 @@ app.post("/course/purchase", function (req,res){
 })
 
 app.get("/course/see", fucntion(req,res){
-    
+
 })
+
+
+
