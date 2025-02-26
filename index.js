@@ -1,42 +1,21 @@
 const express = require("express")
 const app = express()
 
-// route skeleton for user login, signup, purchase a course, see course
+const { userRouter } = require("./routes/user")
+const { courseRouter } = require("./routes/course")
 
 
-app.post("/user/signup", function (req,res){
-    res.json({
-        message: "signed up endpoint"
-    })
-})
+// app.use for userRouter
+app.use("/user", userRouter) 
+// any endpoints starting with /user gets handled by userRouter
+// userRouter defined in a separate file = user.js 
+
+app.use("/course", courseRouter)
 
 
-app.post("/user/signin", function (req,res){
-    res.json({
-        message: "sign in endpoint"
-    })
-})
 
+// ideal thing is to create a route folder and put all these course and user.js files inside them 
 
-// endpoint for user to hit when he wants a new course 
-app.post("/course/purchase", function(req,res){
-    // this endpoint is to buy new courses by the user
-
-    // we are not adding payment thingy to buy new course in this project yet.
-    // user hits this endpoint and that way he purchases it 
-})
-
-
-// endpoint for user to get all their purchased courses
-app.get("/user/purchases", function (req,res){
-
-})
-
-
-// endpoint for user to see all the courses 
-app.get("/courses", function (req,res){
-
-})
 
 app.listen(3000)
 
