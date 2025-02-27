@@ -1,24 +1,30 @@
-const express = require("express")
-const Router = express.Router()
+// const express = require("express")
+// const Router = express.Router()
 
 // or const { Router } = require("express")
-
+const { Router } = require("express")
 const courseRouter = Router()
 
 
-
 // endpoint for user to hit when he wants a new course 
-courseRouter.post("/course/purchase", function(req,res){
+courseRouter.post("/purchase", function(req,res){
     // this endpoint is to buy new courses by the user
 
     // we are not adding payment thingy to buy new course in this project yet.
     // user hits this endpoint and that way he purchases it 
+
+    res.json({
+        message: "you've hit /api/v1/course/purchase endpoint. "
+    })
 })
 
 
 // endpoint for user to see all the courses 
-courseRouter.get("/courses", function (req,res){
+courseRouter.get("/preview", function (req,res){
 
+    res.json({
+        message: "you've hit /api/v1/course/preview endpoint. "
+    })
 })
 
 
