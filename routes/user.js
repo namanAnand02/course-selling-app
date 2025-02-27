@@ -8,6 +8,8 @@ const { Router } = require("express") // this way, we can directly extract Route
 
 const userRouter = Router()  // created a userRoute instance out of Router 
 // note : Router is a function 
+const { userModel } = require('../db') // import userModel from db.js
+
 
 
 userRouter.post("/signup", function (req,res){

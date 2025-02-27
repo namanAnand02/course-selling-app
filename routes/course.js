@@ -1,9 +1,7 @@
-// const express = require("express")
-// const Router = express.Router()
-
-// or const { Router } = require("express")
 const { Router } = require("express")
 const courseRouter = Router()
+
+const { courseModel } = require('../db')
 
 
 // endpoint for user to hit when he wants a new course 

@@ -3,14 +3,14 @@ const app = express()
 const { userRouter } = require("./routes/user")
 const { courseRouter } = require("./routes/course")
 const { adminRouter } = require("./routes/admin")
- 
+
 
 
 // app.use(express.json())
 
 // app.use for userRouter
 app.use("/api/v1/user", userRouter) 
-// any endpoints starting with /user gets handled by userRouter
+// any endpoints starting with /user gets handled by userRouter which is defined in user.js
 // userRouter defined in a separate file = user.js 
 
 app.use("/api/v1/course", courseRouter)
