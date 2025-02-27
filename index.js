@@ -1,7 +1,10 @@
 const express = require("express")
+const app = express()
 const { userRouter } = require("./routes/user")
 const { courseRouter } = require("./routes/course")
-const app = express()
+const { adminRouter } = require("./routes/admin")
+ 
+
 
 // app.use(express.json())
 
@@ -11,6 +14,9 @@ app.use("/api/v1/user", userRouter)
 // userRouter defined in a separate file = user.js 
 
 app.use("/api/v1/course", courseRouter)
+
+// admin router handler 
+app.use("/api/v1/admin", adminRouter)
 
 
 
