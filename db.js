@@ -1,4 +1,4 @@
-const mongoose = require("mongoose")
+const mongoose = require("mongoose") // this is also needed here as we are importing schema out of it.
 const { Schema } = mongoose // destructure schema - correct!
 const ObjectId= mongoose.Types.ObjectId
 
@@ -19,10 +19,13 @@ mongoose.connect("mongodb+srv://anandnaman02:v9jPNDcVAXn0QXxN@cluster0.6k4iz.mon
 
 */
 
-console.log("database connected") // to check if database connected or not 
-mongoose.connect("mongodb+srv://username:paassword.6k4iz.mongodb.net/coursera-app-database")
+//// ---> we are putting this into index.js file and awaiting this so that our application does not start until this database connection gets successful.
+// console.log("database connected") // to check if database connected or not 
+// mongoose.connect("mongodb+srv://username:paassword.6k4iz.mongodb.net/coursera-app-database")
 
-// after conecting database here, make sure to import the datamodels at the right files like adminModel inside admin.js, etc
+
+
+// after connecting database here, make sure to import the datamodels at the right files like adminModel inside admin.js, etc
 
 // ~~~~~~ define the schema ~~~~~~~~~~
 

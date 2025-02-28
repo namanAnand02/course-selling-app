@@ -6,3 +6,8 @@
 - add routes for admin login, admin signup, create a course, delete a course, add course content.
 - define schema for User, Admin, Course, Purchase 
 - add a database (mongoDb), Use dotenv to store the database collection string
+ NOTE:  we did one improvements in step 5: we wrapped database connection and listening on port inside one func, we await database connection first, and on success, we listen on port 3000
+
+- 
+
+
