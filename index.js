@@ -6,8 +6,17 @@ const { adminRouter } = require("./routes/admin")
 
 const mongoose = require("mongoose") // this is also req here as we are doing mongoose.connect(..) here.
 
-// app.use(express.json())
+require("dotenv").config(); // load environment variables
 
+
+// ~~~~~~~~~ middleware to parse json data from req ~~~~~~
+// Best Practice: Use express.json() only once in your index.js file, before defining routes.
+// express.json() is a global middleware, meaning it applies to all incoming requests before they reach any router.
+app.use(express.json()) // IMPORTANT
+// Since express.json() is already in index.js, all routers (adminRouter, userRouter, courseRouter) will automatically receive parsed JSON data.
+
+
+// ~~~~~~~~~~ different router ~~~~~~~~~~~~~
 // app.use for userRouter
 app.use("/api/v1/user", userRouter) 
 // any endpoints starting with /user gets handled by userRouter which is defined in user.js
@@ -27,7 +36,7 @@ app.use("/api/v1/admin", adminRouter)
 
 /*
 
-~~~~~~~~~~~~~~~~~ improvements on connecting to database i.e step 5  ~~~~~~~~~~~~~~~~~~~~~~
+NOTE:  improvements on connecting to database i.e step 5  
 
 1. await the database connection here before starting the application on port 3000
 
@@ -36,12 +45,13 @@ app.use("/api/v1/admin", adminRouter)
 */
 
 
+// ~~~~~~ database connection and server start ~~~~~~~~~~~~~
 
 // listening on port 3000 after database connection
 async function main(){
     try{
 
-        await mongoose.connect("mongodb+srv://username:password@cluster0.6k4iz.mongodb.net/coursera-app-database")
+        await mongoose.connect(process.env.MONGODB_URI)
         // only when database gets connected, is when we start our application on port 3000
         console.log("database connected");
         

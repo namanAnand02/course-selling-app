@@ -11,6 +11,14 @@ const userRouter = Router()  // created a userRoute instance out of Router
 const { userModel } = require('../db') // import userModel from db.js
 
 
+// step 6: creating a user middleware 
+function userMiddleware(req,res,next){
+    // do the auth check on the user and if he passes, only then we let him hit the other authenticated endpoints 
+    // ........................
+    // ........
+}
+
+
 
 userRouter.post("/signup", function (req,res){
     res.json({

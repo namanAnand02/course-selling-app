@@ -9,6 +9,8 @@
     - NOTE:  we did one improvements in step 5: we wrapped database connection and listening on port inside one func, we await database connection first, and on success, we listen on port 3000.
     - Another improvement is about using dotenv, something i'll learn and do later.
 
+- add middlewares for user and admin auth 
+
 
 
 
