@@ -27,7 +27,7 @@ userRouter.post("/signup", async function (req,res){
 
 
     const requireBody = z.object({
-        email: z.string().min(7).max(20).email(),
+        email: z.string().min(3).max(50).email(),
         password: z.string().min(7).max(20),
         firstName: z.string().min(7).max(20),
         lastName: z.string().min(7).max(20)
@@ -41,10 +41,20 @@ userRouter.post("/signup", async function (req,res){
             message: "input validation unsuccessful.",
             error: parsedDataWithSuccess.error
         })
+        return 
     }
 
-    // else on parsing success we move on to do the rest as usual stuffs
-    const { email, password, firstName, lastName } = req.body
+
+    // usual stuffs after parsing is successful.
+    const { email, password, firstName, lastName } = req.body;
+    
+    // NOTE:  Check if email already exists - if two requests with the same email come at the same time, both could pass validation before MongoDB enforces uniqueness.
+    const existingUser = await userModel.findOne({ email });
+    if (existingUser) {
+        return res.status(400).json({ message: "Email already registered" });
+    }
+
+
 
     // hash the password
     const hashedPassword = await bcrypt.hash(password, 5)
@@ -72,12 +82,14 @@ userRouter.post("/signin", async function (req,res){
     
     const { email, password } = req.body
 
-    const user = await userModel.findOne({email:email})
+    const user = await userModel.findOne({email:email}) // returns either the user or undefined 
+    // NOTE: userModel.find(..) returns us an array of all the user with this email id, so never do that. as in next if(user) will always be true in that case i.e if([]) ==> true but if(undefined) ==> false
 
     if (!user){
         res.status(403).json({
-            message: "wrong email"
+            message: "incorrect creds" // note: do not mention wrong email to the user, telling them the prob is not safe.
         })
+        return 
     }
 
     // if user with that email exists 
@@ -87,6 +99,8 @@ userRouter.post("/signin", async function (req,res){
         const token = jwt.sign({
             userId: user._id
         }, JWT_SECRET)
+
+        // todo: DO COOKIE LOGIC HERE - implement secure cookie storage for the JWT token
 
         res.status(200).json({
             token: token

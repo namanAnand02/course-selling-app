@@ -38,6 +38,7 @@ adminRouter.post("/signup", async (req,res)=> {
             message: "Incorrect i/p data",
             error: parsedDataWithSuccess.error
         })
+        return 
 
     }
     // else parsedData using safeParse was a success, business as usual
@@ -51,7 +52,15 @@ adminRouter.post("/signup", async (req,res)=> {
     // or using destructoring of req.body
     // const { email, password, firstName, lastName } = req.body 
 
-    
+        
+    // NOTE:  Check if email already exists - if two requests with the same email come at the same time, both could pass validation before MongoDB enforces uniqueness.
+    const existingUser = await userModel.findOne({ email });
+    if (existingUser) {
+        return res.status(400).json({ message: "Email already registered" });
+    }
+
+
+
     // hash the password before storing them into the database 
     const hashedPassword = await bcrypt.hash(password, 5)
     console.log(hashedPassword);
@@ -120,8 +129,9 @@ adminRouter.post('/signin', async (req,res)=>{
     // if database has none admin with this email id, we respond back- wrong creadentials
     if (!admin){
         res.status(403).json({
-            message: "admin with this email doesn't exist."
+            message: "incorrect creds"
         })
+        return 
     }
 
     // if yes, an admin with that email exists, as a next step, we match the password
