@@ -10,6 +10,98 @@ const userRouter = Router()  // created a userRoute instance out of Router
 // note : Router is a function 
 const { userModel } = require('../db') // import userModel from db.js
 
+const { z } = require("zod")
+const bcrypt = require("bcrypt")
+const jwt = require("jsonwebtoken")
+const JWT_SECRET = "us3r"
+
+
+
+// ~~~~~~~~~ user endpoints ~~~~~~~~~~~~~~~
+
+userRouter.post("/signup", async function (req,res){
+    // 0. i/p validation using zod 
+    // 1. access the email, password, firstName, and lastName from the user.
+    // 2. hash the password before saving it into db - we shudn't save the plain text password into the db
+    // 3. save these user's data into database collection - users collection
+
+
+    const requireBody = z.object({
+        email: z.string().min(7).max(20).email(),
+        password: z.string().min(7).max(20),
+        firstName: z.string().min(7).max(20),
+        lastName: z.string().min(7).max(20)
+    })
+
+    // i/p validation with zod step 2: parsing using safeParse 
+    const parsedDataWithSuccess = requireBody.safeParse(req.body)
+
+    if (!parsedDataWithSuccess.success){
+        res.status(403).json({
+            message: "input validation unsuccessful.",
+            error: parsedDataWithSuccess.error
+        })
+    }
+
+    // else on parsing success we move on to do the rest as usual stuffs
+    const { email, password, firstName, lastName } = req.body
+
+    // hash the password
+    const hashedPassword = await bcrypt.hash(password, 5)
+
+    // save all these data into db using userModel 
+    await userModel.create({
+        email: email, 
+        password: hashedPassword,
+        firstName: firstName,
+        lastName:lastName
+    })
+
+    res.json({
+        message: "user has signed up."
+    })
+})
+
+
+userRouter.post("/signin", async function (req,res){
+    // 1. access email and password from req
+    // 2. find the existing user with this email 
+    // 3. if user with that email doesn't exist, respond back- incorrect creds 
+    // 4. if user with that email exists, compare plainpassword with saved hashed password in db using bcrypt.compare(..)
+    // 5. if password matches, generate the jwt tokn for this user using jsonwebtoken 
+    
+    const { email, password } = req.body
+
+    const user = await userModel.findOne({email:email})
+
+    if (!user){
+        res.status(403).json({
+            message: "wrong email"
+        })
+    }
+
+    // if user with that email exists 
+    const isPasswordMatched = await bcrypt.compare(password, user.password)
+
+    if (isPasswordMatched){
+        const token = jwt.sign({
+            userId: user._id
+        }, JWT_SECRET)
+
+        res.status(200).json({
+            token: token
+        })
+
+    } else {
+        res.status(403).json({
+            message: "wrong password"
+        })
+    }
+
+
+})
+
+
 
 // step 6: creating a user middleware 
 function userMiddleware(req,res,next){
@@ -17,22 +109,6 @@ function userMiddleware(req,res,next){
     // ........................
     // ........
 }
-
-
-
-userRouter.post("/signup", function (req,res){
-    res.json({
-        message: "signed up endpoint"
-    })
-})
-
-
-userRouter.post("/signin", function (req,res){
-    res.json({
-        message: "sign in endpoint"
-    })
-})
-
 
 // endpoint for user to get all their purchased courses
 userRouter.get("/purchases", function (req,res){

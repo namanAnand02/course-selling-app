@@ -48,6 +48,10 @@ adminRouter.post("/signup", async (req,res)=> {
     const firstName = req.body.firstName;
     const lastName = req.body.lastName;
 
+    // or using destructoring of req.body
+    // const { email, password, firstName, lastName } = req.body 
+
+    
     // hash the password before storing them into the database 
     const hashedPassword = await bcrypt.hash(password, 5)
     console.log(hashedPassword);
@@ -182,6 +186,7 @@ adminRouter.post("/course", (req,res)=>{
         message: "new course added"
     })
 })
+
 
 // admin do the changes in existing courses 
 adminRouter.put("/course", function(req,res){
