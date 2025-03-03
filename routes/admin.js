@@ -1,11 +1,13 @@
 const { Router } = require("express")
 const adminRouter = Router()
-const { adminModel, userModel } = require("../db")
-const { userRouter } = require("./user")
+const { adminModel, userModel, courseModel } = require("../db")
+
 const jwt = require("jsonwebtoken") // import jwt 
-const JWT_SECRET = "s3cret" // generate a jwt secret 
+/// const JWT_SECRET = "s3cret" // generate a jwt secret and moved it to config.js, we'll import it from config.js to use it here
+const { JWT_ADMIN_SECRET }= require("../config")
 const bcrypt = require("bcrypt")
 const { z } = require("zod")
+const { adminMiddleware } = require("../middleware/admin")
 
 
 ///adminRouter.use(express.json()) // not needed here - only sufficient in index.js file 
@@ -20,9 +22,9 @@ adminRouter.post("/signup", async (req,res)=> {
     // validate the input using zod 
     const requireBody = z.object({
         email: z.string().min(7).max(20).email(),
-        password: z.string().min(7).max(20),
-        firstName: z.string().min(7).max(20),
-        lastName: z.string().min(7).max(20)
+        password: z.string().min(3).max(20),
+        firstName: z.string().min(3).max(20),
+        lastName: z.string().min(3).max(20)
     })
 
     // input validation using zod step2 : safeParse
@@ -54,7 +56,7 @@ adminRouter.post("/signup", async (req,res)=> {
 
         
     // NOTE:  Check if email already exists - if two requests with the same email come at the same time, both could pass validation before MongoDB enforces uniqueness.
-    const existingUser = await userModel.findOne({ email });
+    const existingUser = await adminModel.findOne({ email });
     if (existingUser) {
         return res.status(400).json({ message: "Email already registered" });
     }
@@ -92,7 +94,7 @@ this is what gets saved inside mongoDB coursera-app-database --> admins collecti
     "$oid": "67c2bba7d35d4a494185ab08"
   },
   "email": "ramesh@gmail.com",
-  "password": "1waseff",
+  "password": "$2@5bsshfksdhfoewrtu43934rt4w2n823.13423rhdswweei",
   "firstName": "agoda",
   "lastName": "hathoda",
   "__v": 0
@@ -153,7 +155,7 @@ adminRouter.post('/signin', async (req,res)=>{
 
         const token = jwt.sign({
             adminId : admin._id // admin will be assigned an unique Object id at the time of storing them into mongodb database 
-        }, JWT_SECRET)
+        }, JWT_ADMIN_SECRET)
 
         // after generating token, return it to this user admin 
         res.json({
@@ -168,37 +170,77 @@ adminRouter.post('/signin', async (req,res)=>{
     }
 
 
-
-
-
-    // res.json({
-    //     message: "you're the admin and you're signed in."
-    // })
 })
 
 
 
-
+// ~~~~~~~~~~~~~~ authenticated endpoints ~~~~~~~~~~~~~~
 // for all below endpoints, we'll add a middleware- adminMiddleware 
 // which always checks if the user is admin or not - and only if user is admin, it allows them to hit these endpoints and do changes.
+// this middleware also modifies the req body and insert the admin unique Id (extracted from the token)
+// this admin unique id is the same that we had used as adminId in the generation of token (as payload).
 
-function adminMiddleware(req,res,next){
-    // checks if user is admin or not 
-    // if user is admin, only then allows the user to hit the below endpoints by calling next()
-}
+// these endpoints can use this adminId now by accessing them directly from req...
+
 
 // to add this middleware into all the below endpoints 
 adminRouter.use(adminMiddleware) 
 
+
+
 // admin add a new course 
-adminRouter.post("/course", (req,res)=>{
+adminRouter.post("/course",adminMiddleware, async (req,res)=>{
+    // 1. auth is checked on user by adminMiddleware first - to check if the admin is signed in or not 
+    // 2. adminMiddleware - checks if admin is signed in or not , if yes, he'll modify the req body and put adminId inside req.
+    // 3. if admin is signed in, we asks courseModel to create a new course for this creator. we give this courseModel all the info based on courseSchema defined in db.js.
+
+
+    const adminId = req.adminId // adminMiddleware had it stored in req, so we access it directly from req
+
+    // this endpoint expects the user to give title, desc, imageURL, and price about the course that they want to create.
+    const { title, description, imageUrl, price } = req.body // creator of this course sends these info
+
+    /*
+
+    // course schema defined in db.js
+
+        // course schema 
+    const courseSchema = new Schema({
+        title: String,
+        description: String,
+        price: Number,
+        imageURL: String, 
+        creatorId: ObjectId
+
+        })
+
+    */
+
+    // next thing, we ask courseModel to create this course with the given data into the database collection (courses) for us.
+    
+    // we give courseModel every info it needs based on courseSchem and asks it to create this course for us.
+    const newCourse = await courseModel.create({
+
+        // we store following info about this new course 
+        title, 
+        description, 
+        imageUrl, 
+        price,
+        creatorId: adminId, // which creator created this course
+
+
+    })
+
+    // respond to the user about this new course added, also send back the courseId set by the mongoDb.
     res.json({
-        message: "new course added"
+        message: "new course added", 
+        courseId: newCourse._id
     })
 })
 
 
-// admin do the changes in existing courses 
+
+// admin do the changes in existing courses // update the course 
 adminRouter.put("/course", function(req,res){
     res.json({
         message: "admin can do some changes in the existing courses"

@@ -13,7 +13,9 @@ const { userModel } = require('../db') // import userModel from db.js
 const { z } = require("zod")
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
-const JWT_SECRET = "us3r"
+/// const JWT_SECRET = "us3r" // removed from here and put it in config.js file.
+// to use JWT_USER_SECRET here, we now import it from config.js 
+const { JWT_USER_SECRET } = require("../config")
 
 
 
@@ -98,7 +100,7 @@ userRouter.post("/signin", async function (req,res){
     if (isPasswordMatched){
         const token = jwt.sign({
             userId: user._id
-        }, JWT_SECRET)
+        }, JWT_USER_SECRET)
 
         // todo: DO COOKIE LOGIC HERE - implement secure cookie storage for the JWT token
 
