@@ -50,7 +50,7 @@
     - similarly, we have defined userMiddleware. 
 
 - step 8: define authenticated endpoints of /routes/admin.js
-    - /course auth endpoint (to add new course )
+    - 1. /course auth endpoint (to add new course )
         - insert adminMiddleware in between the arguments 
         - this adminMiddleware first checks the auth of admin 
         - if admin is rightly signed in, it inserts the adminId inside req and calls next().
@@ -64,6 +64,14 @@
 
         - at last, it responds back the admin with msg that new course created. Also it sends back the unique courseId set to this new course by mongoDB.
 
+    - 2. admin put /course route (to make changes to the course)
+        - admin user sends title, desc etc to change. 
+        - he also sends courseId for us to be able to find the course he wants to make change. 
+        - we use courseModel.updateOne(filter, update) function for that. 
+        - we first add a filter to ensure the courseID and creatorID belongs to the same course. 
+        - this is to make sure one creator should be able to make changes only to his courseID with courseID.
+        - then the admin passes the changes to be made. 
+        - at last, we also respond back to the user that course got updated, and we also send back the new courseId.
 
 
 

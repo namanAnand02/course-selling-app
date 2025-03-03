@@ -241,11 +241,71 @@ adminRouter.post("/course",adminMiddleware, async (req,res)=>{
 
 
 
+
 // admin do the changes in existing courses // update the course 
-adminRouter.put("/course", function(req,res){
-    res.json({
-        message: "admin can do some changes in the existing courses"
+adminRouter.put("/course", adminMiddleware, async function(req,res){
+
+    // NOTE: creator should be able to make changes to their own course. 
+    // suppose there are two creators, then they shouldn't be able to make changes to each other's courses. 
+    // if one creator gets the courseId of the course of other creator, they shouldn't be able to update the channges in that course. 
+    // to ensure that, we always first ensure if the course belongs to this admin or not- by making sure if this courseId sent by user belongs to him or not ??!!
+
+
+    // they will send us every info - updated title, etc
+
+    const adminId = req.adminId // adminMiddleware had it stored in req, so we access it directly from req
+    const { title, description, imageUrl, price, courseId } = req.body // creator of this course sends these info
+
+    /*
+
+    doing this, we can early return if someone else tries to make changes to someone else's course.
+    const courseToBeChanged = await courseModel.findOne({
+        courseId: courseId, 
+        creatorId: adminId
     })
+
+    if (!courseToBeChanged){
+        res.status(403).json({
+            message: "you're not authorised to make changes to this course."
+        })
+    }
+
+    */
+
+    // OR 
+
+
+    // updateOne (filter, update, options? ) - check definition for help 
+    // filter - kaun sa course mein aap changes karrn chahte ho
+    // update- updated info - what all things we want to update 
+    const courseToBeChanged = await courseModel.updateOne({
+
+        _id : courseId, // make changes to the course with this courseId
+        creatorId : adminId // and this adminID
+
+        // update the changes in that course only where these both info matches.
+        // some other creator should not be able to make changes to other courses.
+        // to ensure that, we must always check the courseID and adminID both belongs to same admin or not.
+        // doing that above thingy, it is not possible to find a course with courseID of one of the courses of other cretaor and adminID of other creator. // so it does the work. 
+        // or we could use .findOne with these info 
+    },
+    { 
+        // below are the things we want to update 
+        title: title,
+        description: description,
+        imageUrl: imageUrl, 
+        price: price, // price gets updated
+        // NOTE: adminId cant get updated, therefore not updated the creatorId
+
+
+    })
+
+    // respond to the user about this new course added, also send back the courseId set by the mongoDb.
+    res.json({
+        message: "course updated.", 
+        courseId: courseToBeChanged._id
+    })
+
 })
 
 // admin delete a course 
