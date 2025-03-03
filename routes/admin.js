@@ -184,7 +184,8 @@ adminRouter.post('/signin', async (req,res)=>{
 
 
 // to add this middleware into all the below endpoints 
-adminRouter.use(adminMiddleware) 
+// adminRouter.use(adminMiddleware) // Not needed if i am manually adding this middleware in each authenticated routes.
+// If we keep adminRouter.use(adminMiddleware), it automatically applies adminMiddleware to all routes that come after this line.
 
 
 

@@ -119,12 +119,29 @@ userRouter.post("/signin", async function (req,res){
 
 
 
-// step 6: creating a user middleware 
-function userMiddleware(req,res,next){
-    // do the auth check on the user and if he passes, only then we let him hit the other authenticated endpoints 
-    // ........................
-    // ........
-}
+// // step 6: creating a user middleware 
+// function userMiddleware(req,res,next){
+//     // do the auth check on the user and if he passes, only then we let him hit the other authenticated endpoints 
+//     // ........................
+//     // ........
+// }
+
+
+// endpoint to buy new course by user
+userRouter.post("/courses/purchase", async (req,res)=>{
+    res.json({
+        message: "endpoint to buy new course."
+    })
+})
+
+
+// endpoint to see all courses available on application
+userRouter.post("/courses/preview", async (req,res)=>{
+    res.json({
+        message: "endpoint to see all course."
+    })
+})
+
 
 // endpoint for user to get all their purchased courses
 userRouter.get("/purchases", function (req,res){

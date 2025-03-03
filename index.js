@@ -7,6 +7,7 @@ const { adminRouter } = require("./routes/admin")
 const mongoose = require("mongoose") // this is also req here as we are doing mongoose.connect(..) here.
 
 require("dotenv").config(); // load environment variables
+// console.log(process.env.MONGODB_URI);
 
 
 // ~~~~~~~~~ middleware to parse json data from req ~~~~~~
