@@ -62,7 +62,7 @@
 
         - then it calls courseModel and feed these info about the course and asks it to create a course for it in the courses collection following courseSchema.
 
-        - at last, it responds back the admin with msg that new course created. Also it sends back the unique courseId set to this course by mongoDB.
+        - at last, it responds back the admin with msg that new course created. Also it sends back the unique courseId set to this new course by mongoDB.
 
 
 
