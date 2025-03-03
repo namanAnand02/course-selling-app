@@ -308,21 +308,34 @@ adminRouter.put("/course", adminMiddleware, async function(req,res){
 
 })
 
-// admin delete a course 
-adminRouter.delete("/course", (req,res)=>{
-    res.json({
-        message: "admin can delete an existing course"
-    })
-})
 
-// admin get to all of its courses 
-adminRouter.get("/course/bulk", (req,res)=>{
-    res.json({
-        message: "admin can see all of its courses here."
+// admin get all of its courses 
+adminRouter.get("/course/bulk",adminMiddleware, async (req,res)=>{
+    
+    const adminId = req.adminId
+    // we use .find On couseModel to get all the courses of this user.
+    // .find returns list of all courses 
+    const allCourses = await courseModel.find({
+        creatorId : adminId // find all courses of this creator- adminID
+
     })
+
+    // respond to the admin user all of its courses
+    res.json({
+        message: "All of your courses.", 
+        allCourses: allCourses
+    })
+    
+
 }) 
 
 
+// // admin delete a course : try it later 
+// adminRouter.delete("/course", (req,res)=>{
+//     res.json({
+//         message: "admin can delete an existing course"
+//     })
+// })
 
 module.exports = {
     adminRouter: adminRouter
