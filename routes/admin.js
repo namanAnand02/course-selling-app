@@ -1,14 +1,16 @@
+
 const { Router } = require("express")
 const adminRouter = Router()
-const { adminModel, userModel, courseModel } = require("../db")
+const { adminModel, courseModel } = require("../db")
 
 const jwt = require("jsonwebtoken") // import jwt 
-/// const JWT_SECRET = "s3cret" // generate a jwt secret and moved it to config.js, we'll import it from config.js to use it here
+
 const { JWT_ADMIN_SECRET }= require("../config")
+// console.log(JWT_ADMIN_SECRET, "admin routes");
+
 const bcrypt = require("bcrypt")
 const { z } = require("zod")
 const { adminMiddleware } = require("../middleware/admin")
-
 
 ///adminRouter.use(express.json()) // not needed here - only sufficient in index.js file 
 
@@ -45,7 +47,7 @@ adminRouter.post("/signup", async (req,res)=> {
     }
     // else parsedData using safeParse was a success, business as usual
 
-
+    
     const email = req.body.email;
     const password = req.body.password;
     const firstName = req.body.firstName;
@@ -126,7 +128,7 @@ adminRouter.post('/signin', async (req,res)=>{
 
     // if a user admin exists with this email, its all info gets saved into admin variable
 
-    console.log(admin);
+    console.log(admin, "from signin");
 
     // if database has none admin with this email id, we respond back- wrong creadentials
     if (!admin){
@@ -151,8 +153,9 @@ adminRouter.post('/signin', async (req,res)=>{
         // import jwt from jsonwebtoken
         // generate a jwt secret for the jwt token
         // use jwt.sign(payload, JWT_SECRET) to generate a jwt token using the payload 
-
-
+        console.log( "/signin", admin._id);
+        
+        
         const token = jwt.sign({
             adminId : admin._id // admin will be assigned an unique Object id at the time of storing them into mongodb database 
         }, JWT_ADMIN_SECRET)
@@ -256,23 +259,27 @@ adminRouter.put("/course", adminMiddleware, async function(req,res){
     const adminId = req.adminId // adminMiddleware had it stored in req, so we access it directly from req
     const { title, description, imageUrl, price, courseId } = req.body // creator of this course sends these info
 
-    /*
-
-    doing this, we can early return if someone else tries to make changes to someone else's course.
-    const courseToBeChanged = await courseModel.findOne({
-        courseId: courseId, 
+    
+    //doing this, we can early return if someone else tries to make changes to someone else's course.
+    const courseFind = await courseModel.findOne({
+        /// courseId: courseId,  // ❌ WRONG
+        _id: courseId, //✅ CORRECT 
+        // IMPORTANT :There is no courseId field in the MongoDB document.
+        // MongoDB automatically stores IDs in the _id field.
+        // Your database only knows _id, not courseId.
         creatorId: adminId
     })
 
-    if (!courseToBeChanged){
+    if (!courseFind){
         res.status(403).json({
             message: "you're not authorised to make changes to this course."
         })
+
     }
 
-    */
-
-    // OR 
+    
+    // only when it exists, we go an updating the course. 
+    // the early check and return is good thing only 
 
 
     // updateOne (filter, update, options? ) - check definition for help 
@@ -303,7 +310,7 @@ adminRouter.put("/course", adminMiddleware, async function(req,res){
     // respond to the user about this new course added, also send back the courseId set by the mongoDb.
     res.json({
         message: "course updated.", 
-        courseId: courseToBeChanged._id
+        // courseId: courseToBeChanged._id // updateOne() doesnt return it 
     })
 
 })

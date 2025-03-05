@@ -45,6 +45,8 @@ function adminMiddleware (req,res,next){
 
         // this middleware extracts that adminId from the token and put that inside req body for other endpoints to use it.
         req.adminId = decodedInfo.adminId,
+        console.log(req.adminId, "admin middleware");
+        
         next()
          
     } else{

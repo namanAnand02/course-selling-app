@@ -8,7 +8,7 @@ const { Router } = require("express") // this way, we can directly extract Route
 
 const userRouter = Router()  // created a userRoute instance out of Router 
 // note : Router is a function 
-const { userModel } = require('../db') // import userModel from db.js
+const { userModel, courseModel } = require('../db') // import userModel from db.js
 
 const { z } = require("zod")
 const bcrypt = require("bcrypt")
@@ -18,7 +18,8 @@ const jwt = require("jsonwebtoken")
 const { JWT_USER_SECRET } = require("../config")
 
 
-
+const { userMiddleware } = require("../middleware/user")
+ 
 // ~~~~~~~~~ user endpoints ~~~~~~~~~~~~~~~
 
 userRouter.post("/signup", async function (req,res){
@@ -30,9 +31,9 @@ userRouter.post("/signup", async function (req,res){
 
     const requireBody = z.object({
         email: z.string().min(3).max(50).email(),
-        password: z.string().min(7).max(20),
-        firstName: z.string().min(7).max(20),
-        lastName: z.string().min(7).max(20)
+        password: z.string().min(3).max(20),
+        firstName: z.string().min(5).max(20),
+        lastName: z.string().min(3).max(20)
     })
 
     // i/p validation with zod step 2: parsing using safeParse 
@@ -119,32 +120,21 @@ userRouter.post("/signin", async function (req,res){
 
 
 
-// // step 6: creating a user middleware 
-// function userMiddleware(req,res,next){
-//     // do the auth check on the user and if he passes, only then we let him hit the other authenticated endpoints 
-//     // ........................
-//     // ........
-// }
+// defined userMiddleware in separate milddeware folder 
 
 
-// endpoint to buy new course by user
-userRouter.post("/courses/purchase", async (req,res)=>{
-    res.json({
-        message: "endpoint to buy new course."
-    })
-})
+// ~~~~~ authenticated endpoints ~~~~~~~~~
 
 
-// endpoint to see all courses available on application
-userRouter.post("/courses/preview", async (req,res)=>{
-    res.json({
-        message: "endpoint to see all course."
-    })
-})
+
+// to purchase a new course by the user, we have defined a separate endpoint in course.js file 
 
 
 // endpoint for user to get all their purchased courses
 userRouter.get("/purchases", function (req,res){
+    // this is where we will leanr about relationship in MongoDb.
+    
+     
     res.json({
         message: "purchases endpoint"
     })

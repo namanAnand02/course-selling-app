@@ -73,5 +73,13 @@
         - then the admin passes the changes to be made. 
         - at last, we also respond back to the user that course got updated, and we also send back the new courseId.
 
+    - 3. admin get /course/bulk (to get all the courses in bulk)
+        - add adminMiddleware as this is authenticated endpoint
+        - access adminId from req.body. 
+        - to get all courses of admin, we call .find({adminId}) on courseModel, it brings out all of the courses from the database.
+        - respond to the admin user about all of its courses. 
 
+
+- step 9: user authenticated endpoints 
+    
 
