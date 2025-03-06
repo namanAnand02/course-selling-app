@@ -10,11 +10,11 @@ function userMiddleware (req,res,next){
     // 2. verify and store existing user with that token 
     const token = req.headers.token
     const decodedInfo = jwt.verify(token, JWT_USER_SECRET) 
-    console.log(decodedInfo);
+    console.log(decodedInfo, "userMiddleware"); // debugging purpose 
     
 
     if (decodedInfo){
-        req.userID = decodedInfo.userId,
+        req.userId = decodedInfo.userId,
         next()
          
     } else{
@@ -22,6 +22,8 @@ function userMiddleware (req,res,next){
             message: "You are not signed in."
         })
     }
+
+    
 }
 
 

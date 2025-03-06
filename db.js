@@ -56,13 +56,34 @@ const courseSchema = new Schema({
 })
 // purchase schema 
 const purchaseSchema = new Schema({
-    courseId: ObjectId,
-    userId: ObjectId
+    // courseId: ObjectId,
+    // userId: ObjectId
 
     // we could use references here that this userID refers to the userSchema
     // courseId refers to this courseSchema 
 
     // i'll add references thingy later - after i read about that.
+
+    //Make sure that your purchaseModel defines courseId as a reference to courseModel.
+    userId: { type: mongoose.Schema.Types.ObjectId, ref:"users", required: true }, 
+    courseId: { type:mongoose.Schema.Types.ObjectId, ref: "courses", required: true }
+
+
+    // ref: courses ---> it should match the actual model name (collection name) - courses 
+    // Now, when using .populate("courseId"), MongoDB will correctly fetch full course details instead of just the courseId.
+
+    // ref: "users" correctly refers to the users collection.
+    // ref: "courses" correctly refers to the courses collection.
+
+    /*
+    NOTE: if we want to populate both userId and courseId (to see both user and course details), we can use in user/purchase endpoint in user.js:
+
+    const purchases = await purchaseModel.find({ userId })
+    .populate("courseId")
+    .populate("userId");
+
+    */
+
 
 })
 

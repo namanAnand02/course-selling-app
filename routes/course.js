@@ -19,7 +19,7 @@ courseRouter.post("/purchase", userMiddleware, async function(req,res){
 
     // purchase schema demands userId and courseId
     // 2. so user sends these two things through body 
-    const userId = req.body.userId
+    const userId = req.userId
     const courseId = req.body.courseId
 
     // TODO: put a check if this course is already bought by the user or not 
@@ -60,7 +60,7 @@ courseRouter.get("/preview", async function (req,res){
     }
 
     // or 
-    
+
     // const allCourses = await courseModel.find({})
 
     // res.json({

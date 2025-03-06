@@ -8,7 +8,7 @@ const { Router } = require("express") // this way, we can directly extract Route
 
 const userRouter = Router()  // created a userRoute instance out of Router 
 // note : Router is a function 
-const { userModel, courseModel } = require('../db') // import userModel from db.js
+const { userModel, purchaseModel } = require('../db') // import userModel from db.js
 
 const { z } = require("zod")
 const bcrypt = require("bcrypt")
@@ -131,13 +131,85 @@ userRouter.post("/signin", async function (req,res){
 
 
 // endpoint for user to get all their purchased courses
-userRouter.get("/purchases", function (req,res){
-    // this is where we will leanr about relationship in MongoDb.
+userRouter.get("/purchases", userMiddleware, async function (req,res){
+    // this is where we will learn about relationship in MongoDb.
     
-     
-    res.json({
-        message: "purchases endpoint"
+    // try{
+    //     const userId = req.userId // access the userId from req (userMiddleware had it added into it.)
+
+    
+    //     const purchases = await purchaseModel.find({
+    //         userId
+    //     })
+    
+    //     if (!purchases.length){
+    //         return res.status(404).json({
+    //             message:"No purchases yet for this user."
+    //         })
+    //     }
+             
+    //     res.status(200).json({
+    //         message: "user gets to view his purchases.",
+    //         purchases: purchases
+    //     })
+    // } catch(err){
+    //     res.status(500).json({
+    //         message: "error retriving purchases.",
+    //         error: err.message
+    //     })
+    // }
+
+    // the above code only returns the courseId and not the details about the courses. 
+    // to do that, we need to use references concept of mongo 
+
+    // We need to use MongoDB's populate() method to fetch full details of each purchased course.
+    // before that, we make sure that our purchaseModel defines courseId as a reference to courseModel.
+
+    console.log(req.userId, "purchase ENdpoint");
+    
+    const userId = req.userId
+
+    // find the purchases and populate the course details 
+    const purchases = await purchaseModel.find({userId}).populate("courseId")
+    // Used .populate("courseId") → This fetches all details of the purchased courses.
+
+    if (!purchases.length){
+        return res.status(404).json({
+            message: "No purchases yet for this user."
+        })
+    }
+
+    res.status(200).json({
+        message: "user gets to view their purchases.",
+        purchases: purchases
     })
+
+    // NOTE: i need to make sure that my purchaseModel in the db.js defines courseId as a reference to courseModel.
+
+    /*
+    - purchase schame and purchase model should be like this:-
+
+    const purchaseSchema = new mongoose.Schema({
+        userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+        courseId: { type: mongoose.Schema.Types.ObjectId, ref: "Course", required: true }, // Make sure "Course" matches your courseModel name
+        purchaseDate: { type: Date, default: Date.now }
+    });
+
+    const purchaseModel = mongoose.model("Purchase", purchaseSchema);
+    
+    */
+
+    /*
+    
+    NOTE: if we want to populate both userId and courseId (to see both user and course details), we can use in user/purchase endpoint in user.js:
+
+    const purchases = await purchaseModel.find({ userId })
+    .populate("courseId")
+    .populate("userId");
+
+    */
+
+    
 
 })
 
